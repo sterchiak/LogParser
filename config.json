@@ -1,0 +1,15 @@
+{
+    "log_file": "enhanced_mock_auth_log.txt",
+    "output_html": "failed_login_report.html",
+    "output_txt_report": "failed_login_report.txt",
+    "output_user_csv": "failed_usernames.csv",
+    "output_ip_csv": "failed_ips.csv",
+    "output_combined_csv": "failed_attempts_combined.csv",
+    "top_n_results": 5,
+    "filter_keywords": [
+      "Failed password",
+      "Authentication failure",
+      "Invalid user attempt",
+      "Failed login"
+    ]
+  }

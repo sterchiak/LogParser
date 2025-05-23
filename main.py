@@ -1,26 +1,22 @@
 import re
 from collections import Counter
-import csv 
+import csv
+import json
+
+# Load config
+with open("config.json", "r") as config_file:
+    config = json.load(config_file)
 
 ip_counter = Counter()
 user_counter = Counter()
 failed_attempts = []
 pair_counter = Counter()
 
-with open("enhanced_mock_auth_log.txt", "r") as file:
-#with opens the file and ensures closure regardless of potential errors
-
+# Read and parse log file
+with open(config["log_file"], "r") as file:
     for line in file:
-#loop that goes through each line executing the following
-        if (
-        "Failed password" in line
-        or "Authentication failure" in line
-        or "Invalid user attempt" in line
-        or "Failed login" in line
-        ):
+        if any(keyword in line for keyword in config["filter_keywords"]):
             ip_match = re.search(r"\d{1,3}(?:\.\d{1,3}){3}", line)
-            
-            
             user_match = re.search(r"(?:invalid user|illegal user|user|for)\s+(\w+)", line)
 
             if ip_match and user_match:
@@ -32,54 +28,49 @@ with open("enhanced_mock_auth_log.txt", "r") as file:
                 failed_attempts.append((user, ip))
                 print(f"Failed login attempt by user: {user} from IP: {ip}")
 
-            print("\nTop 5 IPs by failed login attempts:")
-            for ip, count in ip_counter.most_common(5):
-                    print(f"{ip}: {count} attempts")
-
-            print("\nTop 5 usernames by failed login attempts:")
-            for user, count in user_counter.most_common(5):
-                    print(f"{user}: {count} attempts")
-with open("failed_login_report.txt", "w") as report:
+# Generate TXT report
+with open(config["output_txt_report"], "w") as report:
     report.write("=== Failed Login Summary Report ===\n\n")
-
-    report.write("Top 5 IPs by failed login attempts:\n")
-    for ip, count in ip_counter.most_common(5):
+    report.write("Top IPs by failed login attempts:\n")
+    for ip, count in ip_counter.most_common(config["top_n_results"]):
         report.write(f"{ip}: {count} attempts\n")
-
-    report.write("\nTop 5 usernames by failed login attempts:\n")
-    for user, count in user_counter.most_common(5):
+    report.write("\nTop usernames by failed login attempts:\n")
+    for user, count in user_counter.most_common(config["top_n_results"]):
         report.write(f"{user}: {count} attempts\n")
-
     report.write("\nTotal unique IPs: " + str(len(ip_counter)) + "\n")
     report.write("Total unique usernames: " + str(len(user_counter)) + "\n")
 
-with open("failed_usernames.csv", "w", newline="") as user_csv:
+# Write username summary to CSV
+with open(config["output_user_csv"], "w", newline="") as user_csv:
     writer = csv.writer(user_csv)
     writer.writerow(["username", "failed_attempts"])
     for user, count in user_counter.most_common():
         writer.writerow([user, count])
 
-with open("failed_ips.csv", "w", newline="") as ip_csv:
+# Write IP summary to CSV
+with open(config["output_ip_csv"], "w", newline="") as ip_csv:
     writer = csv.writer(ip_csv)
     writer.writerow(["ip_address", "failed_attempts"])
     for ip, count in ip_counter.most_common():
         writer.writerow([ip, count])
 
-with open("failed_attempts_combined.csv", "w", newline="") as combo_csv:
+# Write combined user/IP attempt data to CSV
+with open(config["output_combined_csv"], "w", newline="") as combo_csv:
     writer = csv.writer(combo_csv)
     writer.writerow(["username", "ip_address", "attempt_count"])
     for (user, ip), count in pair_counter.items():
         writer.writerow([user, ip, count])
 
-with open("failed_login_report.html", "w") as html:
+# Write HTML summary report
+with open(config["output_html"], "w") as html:
     html.write("<html><head><title>Failed Login Report</title></head><body>")
     html.write("<h1>Failed Login Summary</h1>")
-    html.write("<h2>Top 5 IP Addresses</h2><ul>")
-    for ip, count in ip_counter.most_common(5):
+    html.write("<h2>Top IP Addresses</h2><ul>")
+    for ip, count in ip_counter.most_common(config["top_n_results"]):
         html.write(f"<li>{ip} — {count} attempts</li>")
     html.write("</ul>")
-    html.write("<h2>Top 5 Usernames</h2><ul>")
-    for user, count in user_counter.most_common(5):
+    html.write("<h2>Top Usernames</h2><ul>")
+    for user, count in user_counter.most_common(config["top_n_results"]):
         html.write(f"<li>{user} — {count} attempts</li>")
     html.write("</ul>")
     html.write("<h2>All User/IP Attempt Pairs</h2>")
