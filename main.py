@@ -15,6 +15,7 @@ pair_counter = Counter()
 # Read and parse log file
 with open(config["log_file"], "r") as file:
     for line in file:
+        #Identifying keywords representing failed login attempts as defined by the config file
         if any(keyword in line for keyword in config["filter_keywords"]):
             ip_match = re.search(r"\d{1,3}(?:\.\d{1,3}){3}", line)
             user_match = re.search(r"(?:invalid user|illegal user|user|for)\s+(\w+)", line)
