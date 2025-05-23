@@ -1,0 +1,18 @@
+=== Failed Login Summary Report ===
+
+Top 5 IPs by failed login attempts:
+192.168.1.101: 3 attempts
+192.168.1.103: 2 attempts
+192.168.1.100: 1 attempts
+192.168.1.104: 1 attempts
+192.168.1.106: 1 attempts
+
+Top 5 usernames by failed login attempts:
+invalid: 3 attempts
+root: 3 attempts
+user2: 2 attempts
+attempt: 1 attempts
+illegal: 1 attempts
+
+Total unique IPs: 8
+Total unique usernames: 6
