@@ -61,21 +61,33 @@ with open(config["output_combined_csv"], "w", newline="") as combo_csv:
     for (user, ip), count in pair_counter.items():
         writer.writerow([user, ip, count])
 
-# Write HTML summary report
+top_n_display = 20  # Max user/IP pairs to show before collapsing
+
 with open(config["output_html"], "w") as html:
     html.write("<html><head><title>Failed Login Report</title></head><body>")
     html.write("<h1>Failed Login Summary</h1>")
+
     html.write("<h2>Top IP Addresses</h2><ul>")
     for ip, count in ip_counter.most_common(config["top_n_results"]):
         html.write(f"<li>{ip} — {count} attempts</li>")
     html.write("</ul>")
+
     html.write("<h2>Top Usernames</h2><ul>")
     for user, count in user_counter.most_common(config["top_n_results"]):
         html.write(f"<li>{user} — {count} attempts</li>")
     html.write("</ul>")
-    html.write("<h2>All User/IP Attempt Pairs</h2>")
+
+    html.write("<h2>Top User/IP Pairs</h2>")
+    html.write("<table border='1'><tr><th>Username</th><th>IP Address</th><th>Attempts</th></tr>")
+    for (user, ip), count in pair_counter.most_common(top_n_display):
+        html.write(f"<tr><td>{user}</td><td>{ip}</td><td>{count}</td></tr>")
+    html.write("</table>")
+
+    html.write("<details><summary><strong>View Full List of All User/IP Attempt Pairs</strong></summary>")
+    html.write("<p>(Full list available in CSV: <code>" + config["output_combined_csv"] + "</code>)</p>")
     html.write("<table border='1'><tr><th>Username</th><th>IP Address</th><th>Attempts</th></tr>")
     for (user, ip), count in pair_counter.items():
         html.write(f"<tr><td>{user}</td><td>{ip}</td><td>{count}</td></tr>")
-    html.write("</table>")
+    html.write("</table></details>")
+
     html.write("</body></html>")

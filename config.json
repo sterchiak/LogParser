@@ -1,5 +1,5 @@
 {
-    "log_file": "enhanced_mock_auth_log.txt",
+    "log_file": "mock_auth_log2.txt",
     "output_html": "failed_login_report.html",
     "output_txt_report": "failed_login_report.txt",
     "output_user_csv": "failed_usernames.csv",
